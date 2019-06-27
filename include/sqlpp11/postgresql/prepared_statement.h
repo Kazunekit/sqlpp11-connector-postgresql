@@ -29,8 +29,9 @@
 #define SQLPP_POSTGRESQL_PREPARED_STATEMENT_H
 
 #include <memory>
-#include <string>
 #include <sqlpp11/chrono.h>
+#include <string>
+#include <vector>
 
 namespace sqlpp
 {
@@ -70,10 +71,11 @@ namespace sqlpp
       void _bind_floating_point_parameter(size_t index, const double* value, bool is_null);
       void _bind_integral_parameter(size_t index, const int64_t* value, bool is_null);
       void _bind_text_parameter(size_t index, const std::string* value, bool is_null);
+      void _bind_blob_parameter(size_t index, const std::vector<uint8_t>* value, bool is_null);
       void _bind_date_parameter(size_t index, const ::sqlpp::chrono::day_point* value, bool is_null);
       void _bind_date_time_parameter(size_t index, const ::sqlpp::chrono::microsecond_point* value, bool is_null);
     };
-  }
-}
+  }  // namespace postgresql
+}  // namespace sqlpp
 
 #endif

@@ -84,6 +84,7 @@ namespace sqlpp
         // Store prepared statement arguments
         std::vector<bool> nullValues;
         std::vector<std::string> paramValues;
+        std::vector<std::vector<uint8_t>> memValues;
 
         // ctor
         prepared_statement_handle_t(detail::connection_handle& _connection, std::string stmt, const size_t& paramCount);
@@ -105,8 +106,8 @@ namespace sqlpp
         void generate_name();
         void prepare(std::string stmt);
       };
-    }
-  }
-}
+    }  // namespace detail
+  }    // namespace postgresql
+}  // namespace sqlpp
 
 #endif

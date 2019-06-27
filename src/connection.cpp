@@ -257,6 +257,36 @@ namespace sqlpp
       return result;
     }
 
+    std::vector<uint8_t> connection::escape_bytes(const std::vector<uint8_t>& s) const
+    {
+      validate_connection_handle();
+
+      size_t length = 0;
+
+      std::unique_ptr<unsigned char, void (*)(unsigned char*)> buf{
+          PQescapeByteaConn(_handle->postgres, s.data(), s.size(), &length), [](unsigned char* p) { PQfreemem(p); }};
+      if (buf.get() == nullptr)
+        throw std::bad_alloc{};
+
+      return {buf.get(), buf.get() + length};
+    }
+
+    std::string connection::escape(const std::vector<uint8_t>& s) const
+    {
+      auto buf = escape_bytes(s);
+
+      return {buf.begin(), buf.end()};
+    }
+
+    std::vector<uint8_t> connection::unescape_bytes(const std::vector<uint8_t>& s) const
+    {
+      size_t length = s.size();
+      const std::unique_ptr<unsigned char, void (*)(unsigned char*)> buf{PQunescapeBytea(s.data(), &length),
+                                                                         [](unsigned char* p) { PQfreemem(p); }};
+
+      return {buf.get(), buf.get() + length};
+    }
+
     //! start transaction
     void connection::start_transaction(sqlpp::isolation_level level)
     {
@@ -365,5 +395,5 @@ namespace sqlpp
     {
       return _handle->postgres;
     }
-  }
-}
+  }  // namespace postgresql
+}  // namespace sqlpp

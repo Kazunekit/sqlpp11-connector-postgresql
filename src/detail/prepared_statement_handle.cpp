@@ -11,7 +11,6 @@ namespace sqlpp
 {
   namespace postgresql
   {
-
 #ifdef SQLPP_DYNAMIC_LOADING
     using namespace dynamic;
 #endif
@@ -48,7 +47,7 @@ namespace sqlpp
       prepared_statement_handle_t::prepared_statement_handle_t(connection_handle& _connection,
                                                                std::string stmt,
                                                                const size_t& paramCount)
-          : statement_handle_t(_connection), nullValues(paramCount), paramValues(paramCount)
+          : statement_handle_t(_connection), nullValues(paramCount), paramValues(paramCount), memValues(paramCount)
       {
         generate_name();
         prepare(std::move(stmt));
@@ -76,7 +75,7 @@ namespace sqlpp
         count = 0;
         totalCount = 0;
         result = PQexecPrepared(connection.postgres, _name.data(), size, values.data(), nullptr, nullptr, 0);
-		/// @todo validate result? is it really valid
+        /// @todo validate result? is it really valid
         valid = true;
       }
 
@@ -102,6 +101,6 @@ namespace sqlpp
         result = PQprepare(connection.postgres, _name.c_str(), stmt.c_str(), 0, nullptr);
         valid = true;
       }
-    }
-  }
-}
+    }  // namespace detail
+  }    // namespace postgresql
+}  // namespace sqlpp

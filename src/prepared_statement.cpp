@@ -26,15 +26,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/postgresql/prepared_statement.h>
 #include <sqlpp11/exception.h>
+#include <sqlpp11/postgresql/prepared_statement.h>
 
 #include "detail/prepared_statement_handle.h"
 
 #include <ciso646>
+#include <date/date.h>
 #include <iostream>
 #include <sstream>
-#include <date/date.h>
 
 namespace sqlpp
 {
@@ -125,6 +125,22 @@ namespace sqlpp
       }
     }
 
+    void prepared_statement_t::_bind_blob_parameter(size_t index, const std::vector<uint8_t>* value, bool is_null)
+    {
+      if (_handle->debug())
+      {
+        std::cerr << "PostgreSQL debug: binding blob parameter size " << value->size() << " at index: " << index
+                  << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
+      }
+
+      // Assign values
+      _handle->nullValues[index] = is_null;
+      if (!is_null)
+      {
+        _handle->paramValues[index] = _handle->connection.escape(*value);
+      }
+    }
+
     void prepared_statement_t::_bind_date_parameter(size_t index, const ::sqlpp::chrono::day_point* value, bool is_null)
     {
       if (_handle->debug())
@@ -203,5 +219,5 @@ namespace sqlpp
       }
     }
 
-  }
-}
+  }  // namespace postgresql
+}  // namespace sqlpp

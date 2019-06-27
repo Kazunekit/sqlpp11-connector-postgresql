@@ -49,7 +49,7 @@ namespace sqlpp
     {
       // Forward declaration
       struct connection_handle;
-    }
+    }  // namespace detail
 
     // Forward declaration
     class connection;
@@ -74,6 +74,9 @@ namespace sqlpp
       }
 
       std::string escape(const std::string& arg);
+      std::vector<uint8_t> escape_bytes(const std::vector<uint8_t>& arg);
+      std::string escape(const std::vector<uint8_t>& arg);
+      std::vector<uint8_t> unescape_bytes(const std::vector<uint8_t>& arg);
 
       std::string str() const
       {
@@ -285,6 +288,9 @@ namespace sqlpp
 
       // escape argument
       std::string escape(const std::string& s) const;
+      std::vector<uint8_t> escape_bytes(const std::vector<uint8_t>& s) const;
+      std::string escape(const std::vector<uint8_t>& s) const;
+      std::vector<uint8_t> unescape_bytes(const std::vector<uint8_t>& s) const;
 
       //! call run on the argument
       template <typename T>
@@ -356,8 +362,23 @@ namespace sqlpp
     {
       return _db.escape(arg);
     }
-  }
-}
+
+    inline std::vector<uint8_t> context_t::escape_bytes(const std::vector<uint8_t>& arg)
+    {
+      return _db.escape_bytes(arg);
+    }
+
+    inline std::string context_t::escape(const std::vector<uint8_t>& arg)
+    {
+      return _db.escape(arg);
+    }
+
+    inline std::vector<uint8_t> context_t::unescape_bytes(const std::vector<uint8_t>& arg)
+    {
+      return _db.unescape_bytes(arg);
+    }
+  }  // namespace postgresql
+}  // namespace sqlpp
 
 #include <sqlpp11/postgresql/serializer.h>
 

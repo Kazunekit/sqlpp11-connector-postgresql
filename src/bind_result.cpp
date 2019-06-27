@@ -36,7 +36,7 @@
 #include "detail/prepared_statement_handle.h"
 
 #if defined(_WIN32) || defined(_WIN64)
-#pragma warning (disable:4800)  // int to bool
+#pragma warning(disable : 4800)  // int to bool
 #endif
 
 namespace sqlpp
@@ -142,6 +142,26 @@ namespace sqlpp
       {
         *value = _handle->result.getValue<const char*>(_handle->count, index);
         *len = _handle->result.length(_handle->count, index);
+      }
+    }
+
+    void bind_result_t::_bind_blob_result(size_t _index, const uint8_t** value, size_t* len)
+    {
+      auto index = static_cast<int>(_index);
+      if (_handle->debug())
+      {
+        std::cerr << "PostgreSQL debug: binding blob result at index: " << index << std::endl;
+      }
+
+      if (_handle->result.isNull(_handle->count, index))
+      {
+        *value = nullptr;
+        *len = 0;
+      }
+      else
+      {
+        *len = _handle->result.length(_handle->count, index);
+        *value = _handle->result.getValue<const uint8_t*>(_handle->count, index);
       }
     }
 
@@ -344,5 +364,5 @@ namespace sqlpp
         *value = {};
       }
     }
-  }
-}
+  }  // namespace postgresql
+}  // namespace sqlpp

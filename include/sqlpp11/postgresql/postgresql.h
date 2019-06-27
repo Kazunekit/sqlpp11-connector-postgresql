@@ -33,4 +33,6 @@
 #include <sqlpp11/postgresql/insert.h>
 #include <sqlpp11/postgresql/update.h>
 
+#include <sqlpp11/postgresql/blob.h>
+
 #endif

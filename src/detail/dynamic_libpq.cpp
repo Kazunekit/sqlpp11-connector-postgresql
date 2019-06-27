@@ -29,8 +29,8 @@
 
 #include <atomic>
 #include <cassert>
-#include <string>
 #include <mutex>
+#include <string>
 
 #if defined(__linux__) || defined(__APPLE__)
 #include <dlfcn.h>
@@ -40,48 +40,50 @@
 
 #ifdef SQLPP_DYNAMIC_LOADING
 
-namespace sqlpp {
-namespace postgresql {
-namespace dynamic {
-
-#define DYNDEFINE(NAME) decltype( ::NAME ) * NAME
-
+namespace sqlpp
+{
+  namespace postgresql
+  {
+    namespace dynamic
+    {
+#define DYNDEFINE(NAME) decltype(::NAME)* NAME
 
 #if defined(__linux__) || defined(__APPLE__)
-#define DYNLOAD(HNDL, NAME) NAME = reinterpret_cast<decltype( NAME )>( dlsym(HNDL, #NAME) )
+#define DYNLOAD(HNDL, NAME) NAME = reinterpret_cast<decltype(NAME)>(dlsym(HNDL, #NAME))
 #else
-#define DYNLOAD(HNDL, NAME) NAME = reinterpret_cast<decltype( NAME )>(GetProcAddress(HNDL, #NAME))
+#define DYNLOAD(HNDL, NAME) NAME = reinterpret_cast<decltype(NAME)>(GetProcAddress(HNDL, #NAME))
 #endif
 
-DYNDEFINE(PQescapeStringConn);
-DYNDEFINE(PQescapeString);
-DYNDEFINE(PQescapeByteaConn);
-DYNDEFINE(PQescapeBytea);
-DYNDEFINE(PQfreemem);
-DYNDEFINE(PQexec);
-DYNDEFINE(PQprepare);
-DYNDEFINE(PQexecPrepared);
-DYNDEFINE(PQexecParams);
-DYNDEFINE(PQresultStatus);
-DYNDEFINE(PQresStatus);
-DYNDEFINE(PQresultErrorMessage);
-DYNDEFINE(PQresultErrorField);
-DYNDEFINE(PQcmdTuples);
-DYNDEFINE(PQcmdStatus);
-DYNDEFINE(PQgetvalue);
-DYNDEFINE(PQgetlength);
-DYNDEFINE(PQgetisnull);
-DYNDEFINE(PQoidValue);
-DYNDEFINE(PQoidStatus);
-DYNDEFINE(PQfformat);
-DYNDEFINE(PQntuples);
-DYNDEFINE(PQnfields);
-DYNDEFINE(PQnparams);
-DYNDEFINE(PQclear);
-DYNDEFINE(PQfinish);
-DYNDEFINE(PQstatus);
-DYNDEFINE(PQconnectdb);
-DYNDEFINE(PQerrorMessage);
+      DYNDEFINE(PQescapeStringConn);
+      DYNDEFINE(PQescapeString);
+      DYNDEFINE(PQescapeByteaConn);
+      DYNDEFINE(PQescapeBytea);
+      DYNDEFINE(PQunescapeBytea);
+      DYNDEFINE(PQfreemem);
+      DYNDEFINE(PQexec);
+      DYNDEFINE(PQprepare);
+      DYNDEFINE(PQexecPrepared);
+      DYNDEFINE(PQexecParams);
+      DYNDEFINE(PQresultStatus);
+      DYNDEFINE(PQresStatus);
+      DYNDEFINE(PQresultErrorMessage);
+      DYNDEFINE(PQresultErrorField);
+      DYNDEFINE(PQcmdTuples);
+      DYNDEFINE(PQcmdStatus);
+      DYNDEFINE(PQgetvalue);
+      DYNDEFINE(PQgetlength);
+      DYNDEFINE(PQgetisnull);
+      DYNDEFINE(PQoidValue);
+      DYNDEFINE(PQoidStatus);
+      DYNDEFINE(PQfformat);
+      DYNDEFINE(PQntuples);
+      DYNDEFINE(PQnfields);
+      DYNDEFINE(PQnparams);
+      DYNDEFINE(PQclear);
+      DYNDEFINE(PQfinish);
+      DYNDEFINE(PQstatus);
+      DYNDEFINE(PQconnectdb);
+      DYNDEFINE(PQerrorMessage);
 
 #undef DYNDEFINE
 
@@ -98,82 +100,89 @@ DYNDEFINE(PQerrorMessage);
 #endif
 #endif
 
-void init_pg(std::string libname)
-{
-   std::atomic<bool> initialized{false};
+      void init_pg(std::string libname)
+      {
+        std::atomic<bool> initialized{false};
 
-   if (initialized) return;
+        if (initialized)
+          return;
 
-   if (libname.empty())
-   {
-       libname = GET_STR(SQLPP_DYNAMIC_LOADING_FILENAME);
-   }
+        if (libname.empty())
+        {
+          libname = GET_STR(SQLPP_DYNAMIC_LOADING_FILENAME);
+        }
 
 #undef GET_STR
 #undef STR
 
 #if defined(__linux__) || defined(__APPLE__)
-   void* handle = nullptr;
-   handle = dlopen(libname.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+        void* handle = nullptr;
+        handle = dlopen(libname.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 #else
-    HINSTANCE handle = nullptr;
-    handle = LoadLibrary(libname.c_str());
+        HINSTANCE handle = nullptr;
+        handle = LoadLibrary(libname.c_str());
 #endif
 
-   if (!handle) {
+        if (!handle)
+        {
 #if defined(__linux__) || defined(__APPLE__)
-      throw sqlpp::exception(std::string("Could not load lib: ").append(dlerror()));
+          throw sqlpp::exception(std::string("Could not load lib: ").append(dlerror()));
 #elif defined(_WIN32)
-       if (GetLastError() == 193)
-       {
-           throw sqlpp::exception("Could not load libpq (PostgreSQL) library - error code indicates you are mixing 32/64 bit DLLs"
-                                  " (lib: " + libname + ")");
-       } else {
-           throw sqlpp::exception("Could not load libpq (PostgreSQL) library using LoadLibrary() (" + libname + ")");
-       }
+          if (GetLastError() == 193)
+          {
+            throw sqlpp::exception(
+                "Could not load libpq (PostgreSQL) library - error code indicates you are mixing 32/64 bit DLLs"
+                " (lib: " +
+                libname + ")");
+          }
+          else
+          {
+            throw sqlpp::exception("Could not load libpq (PostgreSQL) library using LoadLibrary() (" + libname + ")");
+          }
 #endif
-   }
+        }
 
-   DYNLOAD(handle, PQescapeStringConn);
-   DYNLOAD(handle, PQescapeString);
-   DYNLOAD(handle, PQescapeByteaConn);
-   DYNLOAD(handle, PQescapeBytea);
-   DYNLOAD(handle, PQfreemem);
-   DYNLOAD(handle, PQexec);
-   DYNLOAD(handle, PQprepare);
-   DYNLOAD(handle, PQexecPrepared);
-   DYNLOAD(handle, PQexecParams);
-   DYNLOAD(handle, PQresStatus);
-   DYNLOAD(handle, PQresultStatus);
-   DYNLOAD(handle, PQresultErrorMessage);
-   DYNLOAD(handle, PQresultErrorField);
-   DYNLOAD(handle, PQcmdStatus);
-   DYNLOAD(handle, PQcmdTuples);
-   DYNLOAD(handle, PQgetvalue);
-   DYNLOAD(handle, PQgetlength);
-   DYNLOAD(handle, PQgetisnull);
-   DYNLOAD(handle, PQoidStatus);
-   DYNLOAD(handle, PQoidValue);
-   DYNLOAD(handle, PQfformat);
-   DYNLOAD(handle, PQntuples);
-   DYNLOAD(handle, PQnfields);
-   DYNLOAD(handle, PQnparams);
-   DYNLOAD(handle, PQclear);
-   DYNLOAD(handle, PQfinish);
-   DYNLOAD(handle, PQconnectdb);
-   DYNLOAD(handle, PQstatus);
-   DYNLOAD(handle, PQerrorMessage);
+        DYNLOAD(handle, PQescapeStringConn);
+        DYNLOAD(handle, PQescapeString);
+        DYNLOAD(handle, PQescapeByteaConn);
+        DYNLOAD(handle, PQescapeBytea);
+        DYNLOAD(handle, PQunescapeBytea);
+        DYNLOAD(handle, PQfreemem);
+        DYNLOAD(handle, PQexec);
+        DYNLOAD(handle, PQprepare);
+        DYNLOAD(handle, PQexecPrepared);
+        DYNLOAD(handle, PQexecParams);
+        DYNLOAD(handle, PQresStatus);
+        DYNLOAD(handle, PQresultStatus);
+        DYNLOAD(handle, PQresultErrorMessage);
+        DYNLOAD(handle, PQresultErrorField);
+        DYNLOAD(handle, PQcmdStatus);
+        DYNLOAD(handle, PQcmdTuples);
+        DYNLOAD(handle, PQgetvalue);
+        DYNLOAD(handle, PQgetlength);
+        DYNLOAD(handle, PQgetisnull);
+        DYNLOAD(handle, PQoidStatus);
+        DYNLOAD(handle, PQoidValue);
+        DYNLOAD(handle, PQfformat);
+        DYNLOAD(handle, PQntuples);
+        DYNLOAD(handle, PQnfields);
+        DYNLOAD(handle, PQnparams);
+        DYNLOAD(handle, PQclear);
+        DYNLOAD(handle, PQfinish);
+        DYNLOAD(handle, PQconnectdb);
+        DYNLOAD(handle, PQstatus);
+        DYNLOAD(handle, PQerrorMessage);
 
-   if (PQescapeStringConn == nullptr || PQexec == nullptr)
-   {
-       throw sqlpp::exception("Initializing dynamically loaded SQLite3 functions failed");
-   }
-   initialized.store(true);
-}
+        if (PQescapeStringConn == nullptr || PQexec == nullptr)
+        {
+          throw sqlpp::exception("Initializing dynamically loaded SQLite3 functions failed");
+        }
+        initialized.store(true);
+      }
 
-}
-}
-}
+    }  // namespace dynamic
+  }    // namespace postgresql
+}  // namespace sqlpp
 
 #undef DYNLOAD
 #endif

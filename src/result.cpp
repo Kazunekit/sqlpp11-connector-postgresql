@@ -25,11 +25,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cstring>
 #include <libpq-fe.h>
 #include <sqlpp11/postgresql/exception.h>
 #include <sqlpp11/postgresql/result.h>
 #include <string>
-#include <cstring>
 
 #ifdef SQLPP_DYNAMIC_LOADING
 #include <sqlpp11/postgresql/dynamic_libpq.h>
@@ -252,5 +252,5 @@ namespace sqlpp
     {
       return PQresultStatus(m_result);
     }
-  }
-}
+  }  // namespace postgresql
+}  // namespace sqlpp

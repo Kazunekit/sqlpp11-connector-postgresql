@@ -29,33 +29,33 @@ set(LIB_HEADERS
 )
 
 add_library(sqlpp11-connector-postgresql STATIC
-	bind_result.cpp
-	connection.cpp
-	exception.cpp
-	prepared_statement.cpp
-	detail/connection_handle.cpp
-	detail/prepared_statement_handle.cpp
-	result.cpp
+    bind_result.cpp
+    connection.cpp
+    exception.cpp
+    prepared_statement.cpp
+    detail/connection_handle.cpp
+    detail/prepared_statement_handle.cpp
+    result.cpp
 )
 
 add_library(sqlpp11-connector-postgresql-dynamic SHARED
-	bind_result.cpp
-	connection.cpp
-	exception.cpp
-	prepared_statement.cpp
-	detail/connection_handle.cpp
-	detail/prepared_statement_handle.cpp
-	detail/dynamic_libpq.cpp
-	result.cpp
+    bind_result.cpp
+    connection.cpp
+    exception.cpp
+    prepared_statement.cpp
+    detail/connection_handle.cpp
+    detail/prepared_statement_handle.cpp
+    detail/dynamic_libpq.cpp
+    result.cpp
 )
 
 if (WIN32)
-	get_filename_component(POSTGRESQL_LIB_FILE ${PostgreSQL_LIBRARIES} NAME)
+    get_filename_component(POSTGRESQL_LIB_FILE ${PostgreSQL_LIBRARIES} NAME)
 elseif(APPLE)
-	set(POSTGRESQL_LIB_FILE "lib${PostgreSQL_LIBRARIES}.dylib")
+    set(POSTGRESQL_LIB_FILE "lib${PostgreSQL_LIBRARIES}.dylib")
 else()
     if("${PostgreSQL_LIBRARIES}" MATCHES ".+lib.+so")
-	    get_filename_component(POSTGRESQL_LIB_FILE ${PostgreSQL_LIBRARIES} NAME)
+        get_filename_component(POSTGRESQL_LIB_FILE ${PostgreSQL_LIBRARIES} NAME)
     else()
         set(POSTGRESQL_LIB_FILE "${PostgreSQL_LIBRARIES}.so")
     endif()
@@ -63,16 +63,16 @@ endif()
 
 # Generate code coverage if enabled
 if (CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-	# Add required flags for code coverage
-	target_compile_options(sqlpp11-connector-postgresql PUBLIC -O0 --coverage)
-	target_compile_options(sqlpp11-connector-postgresql-dynamic PUBLIC -O0 --coverage)
-	if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
-		target_link_options(sqlpp11-connector-postgresql INTERFACE --coverage)
-		target_link_options(sqlpp11-connector-postgresql-dynamic INTERFACE --coverage)
-	else()
-		target_link_libraries(sqlpp11-connector-postgresql INTERFACE --coverage)
-		target_link_libraries(sqlpp11-connector-postgresql-dynamic INTERFACE --coverage)
-	endif()
+    # Add required flags for code coverage
+    target_compile_options(sqlpp11-connector-postgresql PUBLIC -O0 --coverage)
+    target_compile_options(sqlpp11-connector-postgresql-dynamic PUBLIC -O0 --coverage)
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
+        target_link_options(sqlpp11-connector-postgresql INTERFACE --coverage)
+        target_link_options(sqlpp11-connector-postgresql-dynamic INTERFACE --coverage)
+    else()
+        target_link_libraries(sqlpp11-connector-postgresql INTERFACE --coverage)
+        target_link_libraries(sqlpp11-connector-postgresql-dynamic INTERFACE --coverage)
+    endif()
 endif()
 
 target_compile_options(sqlpp11-connector-postgresql-dynamic INTERFACE -DSQLPP_DYNAMIC_LOADING)
@@ -80,11 +80,11 @@ target_compile_options(sqlpp11-connector-postgresql-dynamic PRIVATE -DBUILDING_D
 target_compile_features(sqlpp11-connector-postgresql PRIVATE cxx_auto_type)
 target_compile_features(sqlpp11-connector-postgresql-dynamic PRIVATE cxx_auto_type)
 
-target_link_libraries(sqlpp11-connector-postgresql PRIVATE sqlpp11 ${PostgreSQL_LIBRARIES})
-target_link_libraries(sqlpp11-connector-postgresql-dynamic PUBLIC sqlpp11 PRIVATE ${PostgreSQL_LIBRARIES})
+target_link_libraries(sqlpp11-connector-postgresql PRIVATE  ${PostgreSQL_LIBRARIES})
+target_link_libraries(sqlpp11-connector-postgresql-dynamic  PRIVATE ${PostgreSQL_LIBRARIES})
 
-target_include_directories(sqlpp11-connector-postgresql PRIVATE ${sqlpp11_INCLUDE_DIRS} ${PostgreSQL_INCLUDE_DIRS} "../include/")
-target_include_directories(sqlpp11-connector-postgresql-dynamic PRIVATE ${sqlpp11_INCLUDE_DIRS} ${PostgreSQL_INCLUDE_DIRS} "../include/")
+target_include_directories(sqlpp11-connector-postgresql PRIVATE ${sqlpp11_INCLUDE_DIRS} ${HinnantDate_INCLUDE_DIR} ${PostgreSQL_INCLUDE_DIRS} "../include/")
+target_include_directories(sqlpp11-connector-postgresql-dynamic PRIVATE ${sqlpp11_INCLUDE_DIRS} ${HinnantDate_INCLUDE_DIR} ${PostgreSQL_INCLUDE_DIRS} "../include/")
 
 # The include directory should be PUBLIC. However, that would store an absolute path in the package configuration
 # so leave it PRIVATE and correct that in the ...Config.cmake file. This can be changed when the FindPostgreSQL.cmake got updated.
@@ -96,7 +96,7 @@ set(sqlpp11-connector-postgresql_VERSION_MINOR 54)
 set(sqlpp11-connector-postgresql_VERSION_PATCH 0)
 set(sqlpp11-connector-postgresql_VERSION_STRING ${sqlpp11-connector-postgresql_VERSION_MAJOR}.${sqlpp11-connector-postgresql_VERSION_MINOR}.${sqlpp11-connector-postgresql_VERSION_PATCH})
 set_target_properties(sqlpp11-connector-postgresql PROPERTIES VERSION ${sqlpp11-connector-postgresql_VERSION_STRING}
-	        SOVERSION ${sqlpp11-connector-postgresql_VERSION_MAJOR})
+            SOVERSION ${sqlpp11-connector-postgresql_VERSION_MAJOR})
 set_target_properties(sqlpp11-connector-postgresql-dynamic PROPERTIES VERSION ${sqlpp11-connector-postgresql_VERSION_STRING}
             SOVERSION ${sqlpp11-connector-postgresql_VERSION_MAJOR})
 

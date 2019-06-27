@@ -28,9 +28,11 @@
 #ifndef SQLPP_POSTGRESQL_RESULT_H
 #define SQLPP_POSTGRESQL_RESULT_H
 
+#include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 
 #include <libpq-fe.h>
 
@@ -65,7 +67,7 @@ namespace sqlpp
         checkIndex(record, field);
         T t(0);
         auto txt = std::string(getPqValue(m_result, record, field));
-        if(txt != "")
+        if (txt != "")
 
         {
           t = std::stold(txt);
@@ -105,6 +107,12 @@ namespace sqlpp
     }
 
     template <>
+    inline const uint8_t* Result::getValue<const uint8_t*>(int record, int field) const
+    {
+      return reinterpret_cast<const unsigned char*>(getPqValue(m_result, record, field));
+    }
+
+    template <>
     inline std::string Result::getValue<std::string>(int record, int field) const
     {
       return {getValue<const char*>(record, field)};
@@ -121,7 +129,7 @@ namespace sqlpp
         return false;
       return const_cast<const char*>(val);
     }
-  }
-}
+  }  // namespace postgresql
+}  // namespace sqlpp
 
 #endif
